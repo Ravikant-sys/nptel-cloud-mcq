@@ -6,10 +6,10 @@ const COUNTER_KEY = "visits";
 
 async function trackVisit() {
     try {
-        // Increment the counter in the background
-        await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${COUNTER_KEY}/up`);
+        // Use no-cors mode to ensure the 'hit' reaches the server even if we can't read the response
+        fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${COUNTER_KEY}/up`, { mode: 'no-cors' });
     } catch (e) {
-        console.error("Counter failed", e);
+        // Silent fail
     }
 }
 
@@ -30,41 +30,46 @@ function handleHeaderClick() {
 }
 
 async function showAdminStats() {
-    try {
-        const response = await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
-        const data = await response.json();
-        const count = data.count || 0;
-        
-        // Show a simple custom toast/alert
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            padding: 15px 25px;
-            border-radius: 30px;
-            border: 1px solid var(--accent);
-            color: var(--text-primary);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 10000;
-            font-weight: bold;
-            animation: slideUp 0.3s ease-out;
-        `;
-        toast.innerHTML = `🛡️ Admin: Total Visitors = <span style="color:var(--accent)">${count}</span>`;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
-        
-    } catch (e) {
-        alert("Failed to fetch visitor stats.");
-    }
+    // Since browsers block reading the API count directly (CORS), 
+    // we will show the admin a direct link to the live stats.
+    const statsUrl = `https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${COUNTER_KEY}`;
+    
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid var(--accent);
+        color: var(--text-primary);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        z-index: 10000;
+        text-align: center;
+        animation: slideUp 0.3s ease-out;
+    `;
+    toast.innerHTML = `
+        <div style="margin-bottom:10px;">🛡️ <strong>Admin Menu</strong></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:15px;">
+            Browser security blocks direct counting.<br>Click below to see the live visitor data:
+        </p>
+        <a href="${statsUrl}" target="_blank" style="
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        ">Open Live Stats ↗</a>
+        <button id="close-admin" style="display:block; margin: 10px auto 0; background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:0.8rem;">Close</button>
+    `;
+    document.body.appendChild(toast);
+    
+    document.getElementById('close-admin').onclick = () => toast.remove();
 }
 
 // Check saved theme
