@@ -1,6 +1,73 @@
 // script.js - Core application logic
 
-// --- Theme Toggler Logic ---
+// --- Secret Visitor Counter & Admin Logic ---
+const COUNTER_NAMESPACE = "nptel-cloud-mcq-ravikant"; // Unique namespace
+const COUNTER_KEY = "visits";
+
+async function trackVisit() {
+    try {
+        // Increment the counter in the background
+        await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${COUNTER_KEY}/up`);
+    } catch (e) {
+        console.error("Counter failed", e);
+    }
+}
+
+let titleClickCount = 0;
+let lastClickTime = 0;
+
+function handleHeaderClick() {
+    const now = Date.now();
+    if (now - lastClickTime > 2000) titleClickCount = 0; // Reset if too slow
+    
+    titleClickCount++;
+    lastClickTime = now;
+
+    if (titleClickCount === 5) {
+        showAdminStats();
+        titleClickCount = 0;
+    }
+}
+
+async function showAdminStats() {
+    try {
+        const response = await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+        const data = await response.json();
+        const count = data.count || 0;
+        
+        // Show a simple custom toast/alert
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10000;
+            font-weight: bold;
+            animation: slideUp 0.3s ease-out;
+        `;
+        toast.innerHTML = `🛡️ Admin: Total Visitors = <span style="color:var(--accent)">${count}</span>`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+        
+    } catch (e) {
+        alert("Failed to fetch visitor stats.");
+    }
+}
+
+// Check saved theme
 function toggleTheme() {
     const root = document.documentElement;
     const isLight = root.getAttribute('data-theme') === 'light';
@@ -220,4 +287,14 @@ function submitTest() {
 }
 
 // Call on load if on index
-document.addEventListener('DOMContentLoaded', initDashboard);
+document.addEventListener('DOMContentLoaded', () => {
+    initDashboard();
+    trackVisit(); // Track the visit invisible
+    
+    // Add listener to the header for secret trigger
+    const headerTitle = document.querySelector('header h1');
+    if (headerTitle) {
+        headerTitle.style.cursor = 'pointer';
+        headerTitle.addEventListener('click', handleHeaderClick);
+    }
+});
