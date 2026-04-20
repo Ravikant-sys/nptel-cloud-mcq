@@ -10,7 +10,7 @@ sol_pattern = re.compile(r'^(?:Detailed Solution|Detailed Answer|Explanation)\s*
 
 mcqData = {}
 
-for i in range(1, 12):
+for i in range(1, 13):
     pdf_path = f"nptelsolution/CC_Solution-{i}.pdf"
     if not os.path.exists(pdf_path):
         continue

@@ -309,18 +309,43 @@ h2 {
     margin: 10px 0;
 }
 
-.back-link {
-    display: inline-block;
-    margin-top: 20px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 1.1rem;
-    transition: color 0.2s;
-}
-
 .back-link:hover {
     color: var(--accent);
     text-decoration: underline;
+}
+
+/* Premium Back Button */
+.premium-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 25px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.premium-back-btn:hover {
+    transform: translateX(-5px) scale(1.05);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    color: var(--accent);
+}
+
+.premium-back-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.premium-back-btn:hover svg {
+    transform: translateX(-3px);
 }
 
 @keyframes fadeIn {
@@ -372,4 +397,151 @@ h2 {
         padding: 20px;
     }
     h1 { font-size: 2.2rem; }
+}
+
+/* --- Course Selection Styles --- */
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.course-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.course-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: var(--accent);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    background: var(--glass-bg);
+}
+
+.course-icon {
+    font-size: 3.5rem;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+}
+
+.course-card h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.course-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* MSQ Label Style */
+.msq-badge {
+    display: inline-block;
+    background: #FF9800;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    vertical-align: middle;
+}
+
+/* Styles for Checkbox Options (MSQ) */
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* --- Blockchain Course Overrides (High Specificity, High-Tech Contrast) --- */
+html[data-course="blockchain"] {
+    /* Color Palette Inspired by Reference Image */
+    --bg-gradient: radial-gradient(circle at 40% 40%, #0a3d91 0%, #000a1a 70%, #000510 100%);
+    --accent: #00f2ff; /* Brilliant Neon Cyan */
+    --accent-hover: #ffffff; /* Bright Flash */
+    --glass-bg: rgba(0, 15, 35, 0.75); /* Darker, high-contrast panels */
+    --glass-border: rgba(0, 242, 255, 0.5); /* Vivid glowing borders */
+    --text-primary: #ffffff;
+    --text-secondary: #a0d8ff; /* Soft cyan secondaries */
+    --option-bg: rgba(0, 40, 80, 0.4);
+    --option-hover-bg: rgba(0, 242, 255, 0.15);
+}
+
+html[data-course="blockchain"] body {
+    background: #000510 !important;
+    overflow-x: hidden;
+}
+
+/* Remove EVERYTHING landscape/stars for Blockchain */
+html[data-course="blockchain"] body::before,
+html[data-course="blockchain"] body::after,
+html[data-course="blockchain"] [data-theme="light"] body::before,
+html[data-course="blockchain"] [data-theme="light"] body::after {
+    display: none !important;
+}
+
+/* High-Tech Circuit Background Pattern */
+html[data-course="blockchain"] main::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    background-image: 
+        /* The Dots (Nodes) */
+        radial-gradient(circle at 2px 2px, rgba(0, 242, 255, 0.2) 1.5px, transparent 0),
+        /* Horizontal Circuit Lines */
+        linear-gradient(to right, rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+        /* Vertical Circuit Lines */
+        linear-gradient(to bottom, rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+        /* Occasional Glow Points */
+        radial-gradient(circle at 20% 30%, rgba(0, 242, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(0, 242, 255, 0.08) 0%, transparent 40%);
+    background-size: 60px 60px, 60px 60px, 60px 60px, 100% 100%, 100% 100%;
+    pointer-events: none;
+    animation: techDrift 60s linear infinite;
+}
+
+@keyframes techDrift {
+    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+    to { background-position: 60px 60px, 60px 60px, 60px 60px, 0 0, 0 0; }
+}
+
+/* Glowing Interactive Elements for Blockchain */
+html[data-course="blockchain"] .action-btn {
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+    border: 1px solid rgba(0, 242, 255, 0.5);
+}
+
+html[data-course="blockchain"] .action-btn:hover {
+    box-shadow: 0 0 25px rgba(0, 242, 255, 0.6);
+}
+
+html[data-course="blockchain"] .premium-back-btn {
+    box-shadow: 0 4px 15px rgba(0, 242, 255, 0.15);
+}
+
+html[data-course="blockchain"] .card:hover,
+html[data-course="blockchain"] .course-card:hover {
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+    border-color: var(--accent);
 }

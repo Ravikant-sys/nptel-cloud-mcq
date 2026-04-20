@@ -72,7 +72,45 @@ async function showAdminStats() {
     document.getElementById('close-admin').onclick = () => toast.remove();
 }
 
-// Check saved theme
+// --- Global State ---
+let currentCourse = null;
+let currentQuestions = [];
+
+// --- Course Selection Logic ---
+function selectCourse(courseId) {
+    currentCourse = courseId;
+    localStorage.setItem('selectedCourse', courseId);
+    
+    // UI Transitions
+    document.getElementById('course-selector').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'grid';
+    document.getElementById('back-btn-container').style.display = 'block';
+    
+    const subtitle = document.getElementById('subtitle');
+    if (subtitle) {
+        subtitle.innerText = courseId === 'cloud' ? 'Cloud Computing Dashboard' : 'Blockchain and its Applications Dashboard';
+    }
+    
+    // Apply Course Theme
+    document.documentElement.setAttribute('data-course', courseId);
+    
+    initDashboard();
+}
+
+function resetCourseSelection() {
+    currentCourse = null;
+    localStorage.removeItem('selectedCourse');
+    document.documentElement.removeAttribute('data-course');
+    
+    document.getElementById('course-selector').style.display = 'grid';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('back-btn-container').style.display = 'none';
+    
+    const subtitle = document.getElementById('subtitle');
+    if (subtitle) subtitle.innerText = 'Select your course to continue';
+}
+
+// --- Theme Toggler Logic ---
 function toggleTheme() {
     const root = document.documentElement;
     const isLight = root.getAttribute('data-theme') === 'light';
@@ -94,16 +132,14 @@ function updateThemeIcon(theme) {
     }
 }
 
-// Check saved theme
+// Check saved theme and course on load
 document.addEventListener('DOMContentLoaded', () => {
-    // Default to light mode (friendly) if no theme is saved
-    const saved = localStorage.getItem('theme') || 'light'; 
-    document.documentElement.setAttribute('data-theme', saved);
-    updateThemeIcon(saved);
+    const savedTheme = localStorage.getItem('theme') || 'light'; 
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
 });
-// ---------------------------
 
-// Utility: Shuffle an array using Fisher-Yates
+// Utility: Shuffle an array
 function shuffle(array) {
     let currentIndex = array.length, randomIndex;
     while (currentIndex !== 0) {
@@ -114,20 +150,36 @@ function shuffle(array) {
     return array;
 }
 
-// Global state for current test
-let currentQuestions = [];
-
 function initDashboard() {
     const dashboard = document.getElementById('dashboard');
     if (!dashboard) return; // not on index.html
     
+    const course = currentCourse || localStorage.getItem('selectedCourse');
+    if (!course || !mcqData[course]) {
+        resetCourseSelection();
+        return;
+    }
+
+    currentCourse = course;
+    // Switch UI view if we loaded from storage
+    document.getElementById('course-selector').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'grid';
+    document.getElementById('back-btn-container').style.display = 'block';
+    
+    const subtitle = document.getElementById('subtitle');
+    if (subtitle) subtitle.innerText = course === 'cloud' ? 'Cloud Computing Dashboard' : 'Blockchain and its Applications Dashboard';
+
+    // Apply Course Theme
+    document.documentElement.setAttribute('data-course', course);
+
     dashboard.innerHTML = '';
     
-    const availableWeeks = Object.keys(mcqData).sort((a, b) => parseInt(a) - parseInt(b));
+    const courseData = mcqData[course];
+    const availableWeeks = Object.keys(courseData).sort((a, b) => parseInt(a) - parseInt(b));
     
     availableWeeks.forEach(week => {
         const card = document.createElement('a');
-        card.href = `test.html?week=${week}`;
+        card.href = `test.html?course=${course}&week=${week}`;
         card.className = 'card';
         card.innerHTML = `<h3>Week ${week}</h3><p>Assignment MCQ</p>`;
         dashboard.appendChild(card);
@@ -135,7 +187,7 @@ function initDashboard() {
 
     // Grand Test Card
     const grandCard = document.createElement('a');
-    grandCard.href = `test.html?week=grand`;
+    grandCard.href = `test.html?course=${course}&week=grand`;
     grandCard.className = 'card grand-test-card';
     grandCard.innerHTML = `<h3>Grand Test</h3><p>All Weeks Combined & Shuffled</p>`;
     dashboard.appendChild(grandCard);
@@ -143,43 +195,46 @@ function initDashboard() {
 
 function initTest() {
     const urlParams = new URLSearchParams(window.location.search);
+    const course = urlParams.get('course');
     const week = urlParams.get('week');
-    if (!week) {
+    
+    if (!course || !week || !mcqData[course]) {
         window.location.href = 'index.html';
         return;
     }
 
-    document.getElementById('test-title').innerText = week === 'grand' ? 'Grand Final Test' : `Week ${week} Assignment`;
+    const courseName = course === 'cloud' ? 'Cloud Computing' : 'Blockchain and its Applications';
+    document.getElementById('test-title').innerText = week === 'grand' ? `${courseName} Grand Test` : `${courseName} - Week ${week}`;
+
+    // Apply Course Theme
+    document.documentElement.setAttribute('data-course', course);
 
     // Gather questions
+    const courseData = mcqData[course];
     if (week === 'grand') {
         currentQuestions = [];
-        const availableWeeks = Object.keys(mcqData).sort((a, b) => parseInt(a) - parseInt(b));
-        availableWeeks.forEach(w => {
-            if (mcqData[w]) {
-                currentQuestions = currentQuestions.concat(mcqData[w]);
-            }
+        Object.keys(courseData).forEach(w => {
+            currentQuestions = currentQuestions.concat(courseData[w]);
         });
     } else {
-        currentQuestions = mcqData[week] ? [...mcqData[week]] : [];
+        currentQuestions = courseData[week] ? [...courseData[week]] : [];
     }
 
     if (currentQuestions.length === 0) {
-        document.getElementById('test-container').innerHTML = '<h2>No questions available for this week yet. Add them in data.js!</h2><br><a href="index.html" class="back-link">← Back</a>';
+        document.getElementById('test-container').innerHTML = '<h2>No questions available yet.</h2><br><a href="index.html" class="back-link">← Back</a>';
         return;
     }
 
-    // Shuffle questions every time test is opened
     currentQuestions = shuffle(currentQuestions);
     renderQuestions();
 }
 
 function renderQuestions() {
     const container = document.getElementById('test-container');
-    const submitBtn = document.getElementById('submit-btn');
-    const resultCard = document.getElementById('result-card');
+    if (!container) return;
     
-    // Create elements
+    container.innerHTML = '';
+
     const qWrapper = document.createElement('div');
     qWrapper.id = 'questions-wrapper';
 
@@ -187,17 +242,19 @@ function renderQuestions() {
         const block = document.createElement('div');
         block.className = 'question-block';
         
+        const qHeader = document.createElement('div');
+        if (qObj.isMSQ) {
+            const badge = document.createElement('span');
+            badge.className = 'msq-badge';
+            badge.innerText = 'MSQ (Multiple Select)';
+            qHeader.appendChild(badge);
+        }
+
         const qText = document.createElement('div');
         qText.className = 'question-text';
-        
-        let displayQuestion = qObj.q;
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('week') !== 'grand') {
-            displayQuestion = displayQuestion.replace(/^\[Week \d+\]\s*/, '');
-        }
-        
-        qText.innerText = `${index + 1}. ${displayQuestion}`;
-        block.appendChild(qText);
+        qText.innerText = `${index + 1}. ${qObj.q.replace(/\[Week \d+\]\s*/, '')}`;
+        qHeader.appendChild(qText);
+        block.appendChild(qHeader);
 
         const optionsContainer = document.createElement('div');
         optionsContainer.className = 'options-container';
@@ -207,34 +264,30 @@ function renderQuestions() {
             label.className = `option-label q-${index}-opt`;
             label.id = `label-q${index}-o${optIndex}`;
             
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = `question-${index}`;
-            radio.value = optIndex;
+            const input = document.createElement('input');
+            input.type = qObj.isMSQ ? 'checkbox' : 'radio';
+            input.name = `question-${index}`;
+            input.value = optIndex;
 
-            label.appendChild(radio);
+            label.appendChild(input);
             label.appendChild(document.createTextNode(optText));
             optionsContainer.appendChild(label);
         });
 
         block.appendChild(optionsContainer);
         
-        // Add a hidden solution block
-        if (qObj.solution) {
-            const correctLetter = String.fromCharCode(65 + qObj.correctIndex);
-            const solBlock = document.createElement('div');
-            solBlock.className = 'solution-block';
-            solBlock.id = `solution-${index}`;
-            solBlock.style.display = 'none';
-            solBlock.style.padding = '15px';
-            solBlock.style.marginTop = '15px';
-            solBlock.style.backgroundColor = 'var(--glass-bg)';
-            solBlock.style.borderRadius = '8px';
-            solBlock.style.borderLeft = '4px solid var(--accent)';
-            solBlock.innerHTML = `<strong>Correct Answer: ${correctLetter}</strong><br><br><strong>Detailed Solution:</strong><p style="margin-top:5px; font-size: 0.95rem; color: var(--text-secondary);">${qObj.solution}</p>`;
-            block.appendChild(solBlock);
-        }
+        // Hidden solution
+        const solBlock = document.createElement('div');
+        solBlock.className = 'solution-block';
+        solBlock.id = `solution-${index}`;
+        solBlock.style.display = 'none';
+        
+        const correctLabels = Array.isArray(qObj.correctIndex) 
+            ? qObj.correctIndex.map(i => String.fromCharCode(65 + i)).join(', ')
+            : String.fromCharCode(65 + qObj.correctIndex);
 
+        solBlock.innerHTML = `<strong>Correct Answer: ${correctLabels}</strong><br><br><strong>Detailed Solution:</strong><p>${qObj.solution || "No detailed solution provided."}</p>`;
+        block.appendChild(solBlock);
         qWrapper.appendChild(block);
     });
 
@@ -245,56 +298,64 @@ function submitTest() {
     let score = 0;
     
     currentQuestions.forEach((qObj, index) => {
-        const selected = document.querySelector(`input[name="question-${index}"]:checked`);
-        const correctOptIndex = qObj.correctIndex;
+        const inputs = document.querySelectorAll(`input[name="question-${index}"]`);
+        const selectedIndices = Array.from(inputs)
+            .filter(i => i.checked)
+            .map(i => parseInt(i.value));
+            
+        // Disable inputs
+        inputs.forEach(i => i.disabled = true);
+
+        // Logic for correctness
+        let isCorrect = false;
+        const correctArr = Array.isArray(qObj.correctIndex) ? qObj.correctIndex : [qObj.correctIndex];
         
-        // Disable all inputs for this question after submit
-        const allRadios = document.querySelectorAll(`input[name="question-${index}"]`);
-        allRadios.forEach(r => r.disabled = true);
-
-        // Highlight correct answer
-        const correctLabel = document.getElementById(`label-q${index}-o${correctOptIndex}`);
-        if(correctLabel) correctLabel.classList.add('correct');
-
-        if (selected) {
-            const userOptIndex = parseInt(selected.value);
-            if (userOptIndex === correctOptIndex) {
-                score++;
-            } else {
-                // Highlight user wrong answer
-                const userLabel = document.getElementById(`label-q${index}-o${userOptIndex}`);
-                if(userLabel) userLabel.classList.add('wrong');
-            }
+        // Check if user exactly matched the correct set
+        if (selectedIndices.length === correctArr.length && 
+            selectedIndices.every(val => correctArr.includes(val))) {
+            isCorrect = true;
+            score++;
         }
 
-        // Show solution block
-        const solBox = document.getElementById(`solution-${index}`);
-        if(solBox) solBox.style.display = 'block';
+        // Visual feedback
+        correctArr.forEach(cIdx => {
+            const label = document.getElementById(`label-q${index}-o${cIdx}`);
+            if (label) label.classList.add('correct');
+        });
+
+        selectedIndices.forEach(sIdx => {
+            if (!correctArr.includes(sIdx)) {
+                const label = document.getElementById(`label-q${index}-o${sIdx}`);
+                if (label) label.classList.add('wrong');
+            }
+        });
+
+        // Show solution
+        document.getElementById(`solution-${index}`).style.display = 'block';
     });
 
-    const wrongCount = currentQuestions.length - score;
-    document.getElementById('score-display').innerHTML = `Correct: <span style="color:var(--success);">${score}</span> | Wrong: <span style="color:var(--danger);">${wrongCount}</span>`;
+    const total = currentQuestions.length;
+    document.getElementById('score-display').innerHTML = `Score: ${score} / ${total}`;
     
-    const percentage = (score / currentQuestions.length) * 100;
+    const percentage = (score / total) * 100;
     const msg = document.getElementById('feedback-msg');
-    if(percentage === 100) msg.innerText = "Perfect! You're ready for the exam.";
-    else if(percentage >= 80) msg.innerText = "Great job! Almost perfect.";
-    else if(percentage >= 50) msg.innerText = "Good effort, keep reviewing the material.";
-    else msg.innerText = "Needs review. Keep studying!";
+    if(percentage === 100) msg.innerText = "Excellent! Perfect score.";
+    else if(percentage >= 80) msg.innerText = "Great job! Very close.";
+    else msg.innerText = "Keep studying and try again!";
 
     document.getElementById('result-card').classList.add('visible');
-    
-    // Hide submit button
     const btn = document.getElementById('submit-btn');
-    btn.innerText = "Evaluated";
     btn.disabled = true;
     btn.style.opacity = 0.5;
 }
 
-// Call on load if on index
+// Init Dashboard if on index.html
+if (document.getElementById('dashboard')) {
+    document.addEventListener('DOMContentLoaded', initDashboard);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    initDashboard();
-    trackVisit(); // Track the visit invisible
+    trackVisit(); 
     
     // Add listener to the header for secret trigger
     const headerTitle = document.querySelector('header h1');
