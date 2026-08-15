@@ -622,16 +622,15 @@ function showResults() {
         setTimeout(() => {
             wrapper.style.display = 'none';
             resultsContent.style.display = '';
-            // Confetti burst for good scores
-            if (pct >= 60) {
+            if (pct >= 50) {
                 spawnConfetti(40);
                 setTimeout(() => spawnConfetti(30), 400);
             }
         }, 600);
     }
 
-    // Try to play the video
-    if (video) {
+    // Only play video if score > 50%
+    if (video && pct > 50) {
         let revealed = false;
         const safeReveal = () => {
             if (revealed) return;
@@ -644,32 +643,20 @@ function showResults() {
 
         if (playPromise !== undefined) {
             playPromise.then(() => {
-                // Video is playing — reveal stats when it ends
                 video.addEventListener('ended', safeReveal, { once: true });
-                // Fallback: if video is longer than 6s or gets stuck
                 setTimeout(safeReveal, 6000);
             }).catch(() => {
-                // Autoplay blocked — skip video, show stats immediately
                 wrapper.style.display = 'none';
                 resultsContent.style.display = '';
-                if (pct >= 60) {
-                    spawnConfetti(40);
-                    setTimeout(() => spawnConfetti(30), 400);
-                }
             });
         } else {
-            // Older browser — fallback
             video.addEventListener('ended', safeReveal, { once: true });
             setTimeout(safeReveal, 6000);
         }
     } else {
-        // No video element — show stats directly
+        // Score <= 50% or no video — skip straight to stats
         wrapper.style.display = 'none';
         resultsContent.style.display = '';
-        if (pct >= 60) {
-            spawnConfetti(40);
-            setTimeout(() => spawnConfetti(30), 400);
-        }
     }
 }
 
