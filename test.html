@@ -3,42 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NPTEL Cloud Computing | Test</title>
+    <title>NPTEL Ace — Quiz</title>
+    <meta name="description" content="NPTEL Cloud Computing and Blockchain MCQ practice test with instant feedback.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <header>
-        <h1 id="test-title">Loading...</h1>
-        <a href="index.html" class="premium-back-btn" style="position: absolute; top: 20px; left: 30px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            Back to Dashboard
-        </a>
-        <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle Theme">
-            <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-        </button>
-    </header>
+    <!-- ── Progress Bar ────────────────────────────────────── -->
+    <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="progress-fill" style="width: 0%;"></div>
+    </div>
 
-    <div class="test-container" id="test-main-wrapper">
-        <div id="test-container">
-            <!-- Questions dynamically injected here -->
-        </div>
-        
-        <button class="action-btn" id="submit-btn" onclick="submitTest()">Evaluate Answers</button>
-        
-        <div class="result-card" id="result-card">
-            <h3>Your Score</h3>
-            <div class="score-display" id="score-display">0 / 0</div>
-            <p id="feedback-msg"></p>
-            <button class="action-btn" onclick="location.reload()" style="margin-top: 20px; background: #2ecc71;">Retake</button>
+    <!-- ── Quiz Header ─────────────────────────────────────── -->
+    <div class="quiz-header">
+        <a href="index.html" class="quiz-close-btn" id="quiz-close" aria-label="Exit quiz">✕</a>
+        <span class="quiz-counter" id="quiz-counter">
+            <span class="current">0</span> / <span id="quiz-total">0</span>
+        </span>
+        <div class="quiz-streak-badge" id="quiz-streak">
+            🔥 <span id="quiz-streak-count">0</span>
         </div>
     </div>
 
-    <!-- Load data first, then execution script -->
+    <!-- ── Quiz Body (One question at a time) ──────────────── -->
+    <div class="quiz-body" id="quiz-body">
+        <div class="question-container" id="question-container">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+
+    <!-- ── Bottom Bar (Check / Continue) ───────────────────── -->
+    <div class="quiz-bottom-bar" id="bottom-bar">
+        <div class="bottom-bar-inner">
+            <div class="feedback-section" id="feedback-section">
+                <div class="feedback-header">
+                    <span class="feedback-icon" id="feedback-icon">✅</span>
+                    <span class="feedback-title" id="feedback-title">Correct!</span>
+                </div>
+                <p class="feedback-solution" id="feedback-solution"></p>
+            </div>
+            <button class="quiz-action-btn check-btn" id="action-btn" disabled onclick="handleActionClick()">
+                CHECK
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Confetti Container ──────────────────────────────── -->
+    <div class="confetti-container" id="confetti-container"></div>
+
+    <!-- ── Results Screen (hidden initially) ───────────────── -->
+    <div class="results-screen view-hidden" id="results-screen">
+        <div class="results-emoji" id="results-emoji">🎉</div>
+        <h2 class="results-title" id="results-title">Lesson Complete!</h2>
+        <p class="results-subtitle" id="results-subtitle">Great work finishing this quiz.</p>
+        <div class="results-stats" id="results-stats">
+            <div class="result-stat-card">
+                <div class="result-stat-value" id="stat-score">0</div>
+                <div class="result-stat-label">Score</div>
+            </div>
+            <div class="result-stat-card">
+                <div class="result-stat-value" id="stat-accuracy">0%</div>
+                <div class="result-stat-label">Accuracy</div>
+            </div>
+            <div class="result-stat-card">
+                <div class="result-stat-value warning" id="stat-streak">0</div>
+                <div class="result-stat-label">Best Streak</div>
+            </div>
+        </div>
+        <div class="results-actions">
+            <button class="result-btn primary" onclick="location.reload()">Try Again</button>
+            <a class="result-btn secondary" href="index.html" id="back-to-dashboard-btn">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- ── Scripts ─────────────────────────────────────────── -->
     <script src="assets/data.js"></script>
     <script src="assets/script.js"></script>
     <script>
-        // Start the test generation process specific to this page
         document.addEventListener('DOMContentLoaded', initTest);
     </script>
 </body>
