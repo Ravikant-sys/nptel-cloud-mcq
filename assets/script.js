@@ -569,13 +569,13 @@ function showResults() {
     const fill = document.getElementById('progress-fill');
     if (fill) fill.style.width = '100%';
 
-    // Show results
+    // Show results screen (video plays first)
     const resultsScreen = document.getElementById('results-screen');
     resultsScreen.classList.remove('view-hidden');
 
     const pct = Math.round((score / questions.length) * 100);
 
-    // Emoji & title
+    // Prepare stats content (hidden until video ends)
     const emoji = document.getElementById('results-emoji');
     const title = document.getElementById('results-title');
     const subtitle = document.getElementById('results-subtitle');
@@ -598,12 +598,10 @@ function showResults() {
         subtitle.innerText = 'Review the material and try again.';
     }
 
-    // Stats
     document.getElementById('stat-score').innerText = `${score}/${questions.length}`;
     document.getElementById('stat-accuracy').innerText = `${pct}%`;
     document.getElementById('stat-streak').innerText = bestStreak;
 
-    // Stat colors
     const scoreEl = document.getElementById('stat-score');
     if (pct >= 80) scoreEl.className = 'result-stat-value';
     else if (pct >= 50) scoreEl.className = 'result-stat-value warning';
@@ -614,10 +612,64 @@ function showResults() {
     else if (pct >= 50) accEl.className = 'result-stat-value warning';
     else accEl.className = 'result-stat-value danger';
 
-    // Final confetti for good scores
-    if (pct >= 80) {
-        setTimeout(() => spawnConfetti(40), 300);
-        setTimeout(() => spawnConfetti(30), 700);
+    // Play celebration video, then transition to stats
+    const video = document.getElementById('celebration-video');
+    const wrapper = document.getElementById('celebration-wrapper');
+    const resultsContent = document.getElementById('results-content');
+
+    function revealStats() {
+        wrapper.classList.add('fade-out');
+        setTimeout(() => {
+            wrapper.style.display = 'none';
+            resultsContent.style.display = '';
+            // Confetti burst for good scores
+            if (pct >= 60) {
+                spawnConfetti(40);
+                setTimeout(() => spawnConfetti(30), 400);
+            }
+        }, 600);
+    }
+
+    // Try to play the video
+    if (video) {
+        let revealed = false;
+        const safeReveal = () => {
+            if (revealed) return;
+            revealed = true;
+            revealStats();
+        };
+
+        video.currentTime = 0;
+        const playPromise = video.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Video is playing — reveal stats when it ends
+                video.addEventListener('ended', safeReveal, { once: true });
+                // Fallback: if video is longer than 6s or gets stuck
+                setTimeout(safeReveal, 6000);
+            }).catch(() => {
+                // Autoplay blocked — skip video, show stats immediately
+                wrapper.style.display = 'none';
+                resultsContent.style.display = '';
+                if (pct >= 60) {
+                    spawnConfetti(40);
+                    setTimeout(() => spawnConfetti(30), 400);
+                }
+            });
+        } else {
+            // Older browser — fallback
+            video.addEventListener('ended', safeReveal, { once: true });
+            setTimeout(safeReveal, 6000);
+        }
+    } else {
+        // No video element — show stats directly
+        wrapper.style.display = 'none';
+        resultsContent.style.display = '';
+        if (pct >= 60) {
+            spawnConfetti(40);
+            setTimeout(() => spawnConfetti(30), 400);
+        }
     }
 }
 

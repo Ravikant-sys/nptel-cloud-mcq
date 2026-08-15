@@ -54,26 +54,35 @@
 
     <!-- ── Results Screen (hidden initially) ───────────────── -->
     <div class="results-screen view-hidden" id="results-screen">
-        <div class="results-emoji" id="results-emoji">🎉</div>
-        <h2 class="results-title" id="results-title">Lesson Complete!</h2>
-        <p class="results-subtitle" id="results-subtitle">Great work finishing this quiz.</p>
-        <div class="results-stats" id="results-stats">
-            <div class="result-stat-card">
-                <div class="result-stat-value" id="stat-score">0</div>
-                <div class="result-stat-label">Score</div>
-            </div>
-            <div class="result-stat-card">
-                <div class="result-stat-value" id="stat-accuracy">0%</div>
-                <div class="result-stat-label">Accuracy</div>
-            </div>
-            <div class="result-stat-card">
-                <div class="result-stat-value warning" id="stat-streak">0</div>
-                <div class="result-stat-label">Best Streak</div>
-            </div>
+        <!-- Celebration Video -->
+        <div class="celebration-video-wrapper" id="celebration-wrapper">
+            <video class="celebration-video" id="celebration-video" muted playsinline>
+                <source src="assets/celebration.mp4" type="video/mp4">
+            </video>
         </div>
-        <div class="results-actions">
-            <button class="result-btn primary" onclick="location.reload()">Try Again</button>
-            <a class="result-btn secondary" href="index.html" id="back-to-dashboard-btn">Back to Dashboard</a>
+
+        <div class="results-content" id="results-content" style="display:none;">
+            <div class="results-emoji" id="results-emoji">🎉</div>
+            <h2 class="results-title" id="results-title">Lesson Complete!</h2>
+            <p class="results-subtitle" id="results-subtitle">Great work finishing this quiz.</p>
+            <div class="results-stats" id="results-stats">
+                <div class="result-stat-card">
+                    <div class="result-stat-value" id="stat-score">0</div>
+                    <div class="result-stat-label">Score</div>
+                </div>
+                <div class="result-stat-card">
+                    <div class="result-stat-value" id="stat-accuracy">0%</div>
+                    <div class="result-stat-label">Accuracy</div>
+                </div>
+                <div class="result-stat-card">
+                    <div class="result-stat-value warning" id="stat-streak">0</div>
+                    <div class="result-stat-label">Best Streak</div>
+                </div>
+            </div>
+            <div class="results-actions">
+                <button class="result-btn primary" onclick="location.reload()">Try Again</button>
+                <a class="result-btn secondary" href="index.html" id="back-to-dashboard-btn">Back to Dashboard</a>
+            </div>
         </div>
     </div>
 

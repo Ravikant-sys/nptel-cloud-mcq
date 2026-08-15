@@ -888,6 +888,40 @@ body::before {
     animation: fadeInUp 0.6s ease-out;
 }
 
+/* ── Celebration Video ──────────────────────────────────────── */
+.celebration-video-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.celebration-video {
+    width: 320px;
+    max-width: 90vw;
+    border-radius: 24px;
+    border: 3px solid var(--accent);
+    box-shadow: 0 12px 40px var(--accent-glow), 0 0 60px var(--accent-glow);
+    background: #000;
+}
+
+.celebration-video-wrapper.fade-out {
+    animation: celebVideoOut 0.6s ease-in forwards;
+}
+
+.results-content {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes celebVideoOut {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.85); }
+}
+
+@media (max-width: 600px) {
+    .celebration-video { width: 260px; }
+}
+
 .results-emoji {
     font-size: 5rem;
     margin-bottom: 16px;
