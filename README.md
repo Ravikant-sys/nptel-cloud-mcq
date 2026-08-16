@@ -1,12 +1,13 @@
 # 🐻 NPTEL Ace
 
 [![Live Site](https://img.shields.io/badge/Live%20Site-nptel--cloud--mcq.onrender.com-58cc02?style=for-the-badge&logo=render)](https://nptel-cloud-mcq.onrender.com/)
-[![GitHub](https://img.shields.io/badge/GitHub-Ravikant--sys-181717?style=for-the-badge&logo=github)](https://github.com/Ravikant-sys/nptel-cloud-mcq)
+[![React](https://img.shields.io/badge/React-18.3-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 
-A **Duolingo-inspired** interactive MCQ platform for NPTEL courses — practice Cloud Computing and Blockchain assignments with instant feedback, streak tracking, and a gamified learning experience.
+A **Duolingo-inspired React application** for NPTEL courses — practice Cloud Computing and Blockchain assignments with instant feedback, streak tracking, milestone celebrations, animated mascot videos, and a gamified learning experience.
 
 <p align="center">
-  <img src="assets/logo.jpg" alt="NPTEL Ace Mascot" width="200" />
+  <img src="public/logo.jpg" alt="NPTEL Ace Mascot" width="200" />
 </p>
 
 ---
@@ -14,30 +15,23 @@ A **Duolingo-inspired** interactive MCQ platform for NPTEL courses — practice 
 ## ✨ Features
 
 ### 🎮 Duolingo-Style Quiz Flow
-- **One question at a time** — focused, distraction-free learning
-- **Big tappable option cards** — no tiny radio buttons, click the whole card
-- **Instant feedback** — green ✅ for correct, red ❌ shake for wrong
-- **Solution reveal** — detailed explanation slides up after each answer
-- **Progress bar** — green fill bar at top shows quiz completion
+- **Single-Question Focus**: One question at a time with smooth animated transitions.
+- **Tappable Option Cards**: Clean card design with keyboard & touch support (no tiny radio buttons).
+- **Instant Solution Reveal**: Color-coded feedback banner explaining the concepts.
+- **Dynamic Progress**: Real-time progress bar with question counter and streak indicator.
 
-### 🔥 Gamification
-- **Streak counter** — tracks consecutive correct answers with 🔥 badge
-- **Milestone celebrations** — animated overlay every 3 questions when doing well
-- **Confetti animations** — particle burst on correct answers
-- **Score history** — best scores saved and displayed on the dashboard
-- **Animated results screen** — score, accuracy, and best streak at quiz end
+### 🔥 Gamification & Delighters
+- **Streak Multiplier**: Consecutive correct answers light up the 🔥 streak badge.
+- **Milestone Animations**: Full-screen celebration overlays popping up every 3 questions when on a roll.
+- **Celebration Video**: Custom mascot completion video played at the end for scores > 50%.
+- **Particle Confetti**: Joyful confetti explosions on correct answers and high scores.
+- **Score Persistence**: Best scores recorded in local storage and displayed as badges on week dashboards.
 
-### 🎨 Premium Design
-- **Dark & Light themes** — smooth toggle with full theme support
-- **Course-specific themes** — unique color schemes (green for Cloud, cyan for Blockchain)
-- **Responsive design** — works great on mobile, tablet, and desktop
-- **Smooth animations** — staggered card entrances, bouncy transitions, micro-interactions
-- **Custom mascot logo** — the NPTEL Ace bear 🐻🎓
-
-### 📚 Multi-Course Support
-- **Cloud Computing** — 12 weeks, 120+ questions
-- **Blockchain & Applications** — 11 weeks, 109+ questions
-- **Grand Test mode** — all weeks combined and shuffled
+### 🎨 Design & Architecture
+- **React + Vite Architecture**: Lightning-fast hot reloading, modular component hierarchy, and declarative state machine.
+- **Dark & Light Modes**: System-aware and manual theme switching with customized radial gradients.
+- **Course-Specific Theming**: Emerald Green theme for Cloud Computing and Cyber Cyan theme for Blockchain.
+- **Responsive Layout**: Designed mobile-first for touch screens, tablets, and desktop browsers.
 
 ---
 
@@ -45,28 +39,37 @@ A **Duolingo-inspired** interactive MCQ platform for NPTEL courses — practice 
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | Vanilla HTML5, CSS3, JavaScript (ES6+) |
-| **Styling** | CSS Grid, Flexbox, CSS Custom Properties |
-| **Fonts** | Google Fonts (Outfit, Inter) |
-| **Data** | JSON-structured question bank in JS |
-| **Storage** | localStorage for scores and preferences |
-| **Analytics** | [CounterAPI](https://counterapi.dev/) for visitor tracking |
-| **Hosting** | Render (Static Site) |
+| **Framework** | [React 18](https://react.dev/) + [Vite](https://vitejs.dev/) |
+| **Routing** | [React Router 6](https://reactrouter.com/) |
+| **Styling** | Vanilla CSS (CSS variables, keyframe animations, glassmorphism) |
+| **Data Format** | Modular JSON datasets (`cloud.json`, `blockchain.json`) |
+| **Deployment** | [Render](https://render.com/) Static Site (`render.yaml`) |
 
 ---
 
 ## 🚀 Getting Started
 
-```bash
-# Clone the repo
-git clone https://github.com/Ravikant-sys/nptel-cloud-mcq.git
+### Prerequisites
+- Node.js 18+
+- npm
 
-# Open in browser
+### Development
+```bash
+# Clone repository
+git clone https://github.com/Ravikant-sys/nptel-cloud-mcq.git
 cd nptel-cloud-mcq
-open index.html
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-No build step needed — it's pure HTML/CSS/JS!
+### Production Build
+```bash
+npm run build
+```
 
 ---
 
@@ -74,40 +77,34 @@ No build step needed — it's pure HTML/CSS/JS!
 
 ```
 nptel-cloud-mcq/
-├── index.html          # Home page — course selection & week dashboard
-├── test.html           # Quiz page — Duolingo-style question flow
-├── assets/
-│   ├── logo.jpg        # NPTEL Ace bear mascot logo
-│   ├── style.css       # Complete design system
-│   ├── script.js       # Quiz engine & UI logic
-│   └── data.js         # Question bank (Cloud + Blockchain)
-└── README.md
+├── public/
+│   ├── logo.jpg               # Bear mascot logo
+│   ├── celebration.mp4        # Mascot celebration animation
+│   └── _redirects             # SPA routing fallback for Render / Netlify
+├── src/
+│   ├── components/
+│   │   ├── Header.jsx         # Navigation bar with theme toggle & admin trigger
+│   │   ├── Confetti.jsx       # Confetti particle burst effect
+│   │   ├── MilestoneOverlay.jsx # Every-3-questions congratulatory overlay
+│   │   ├── CelebrationVideo.jsx # Post-quiz video player
+│   │   └── AdminToast.jsx     # Easter egg analytics panel
+│   ├── data/
+│   │   ├── cloud.json         # 12 weeks of Cloud Computing MCQs
+│   │   └── blockchain.json    # 11 weeks of Blockchain MCQs
+│   ├── hooks/
+│   │   ├── useTheme.jsx       # Dark/Light & Course theme provider
+│   │   └── useScoreHistory.js # LocalStorage score storage
+│   ├── pages/
+│   │   ├── HomePage.jsx       # Course selection & week dashboard
+│   │   └── QuizPage.jsx       # Complete Duolingo quiz flow & results
+│   ├── utils/
+│   │   └── shuffle.js         # Question randomization
+│   ├── App.jsx                # Router & Theme Context setup
+│   ├── index.css              # Design system & animations
+│   └── main.jsx               # Application entry point
+├── render.yaml                # Zero-config deployment on Render
+└── vite.config.js
 ```
-
----
-
-## 📊 Engagement
-
-- **250+ Visitors** during the initial live deployment
-- Built-in visitor tracking via CounterAPI
-- Hidden admin panel (5x click the logo 🤫)
-
----
-
-## 📱 Screenshots
-
-| Home | Dashboard | Quiz |
-|------|-----------|------|
-| Course selection with mascot | Week grid with score badges | One-question-at-a-time flow |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-- Add more NPTEL courses
-- Improve the question bank
-- Suggest UI/UX enhancements
 
 ---
 

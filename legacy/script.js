@@ -561,9 +561,12 @@ function showResults() {
     saveScore(course, week, score, questions.length);
 
     // Hide quiz elements
-    document.getElementById('quiz-body').classList.add('view-hidden');
-    document.getElementById('bottom-bar').classList.add('view-hidden');
-    document.getElementById('quiz-header').style.display = 'none';
+    const quizBody = document.getElementById('quiz-body');
+    const bottomBar = document.getElementById('bottom-bar');
+    const quizHeader = document.getElementById('quiz-header');
+    if (quizBody) quizBody.classList.add('view-hidden');
+    if (bottomBar) bottomBar.classList.add('view-hidden');
+    if (quizHeader) quizHeader.style.display = 'none';
 
     // Update progress to 100%
     const fill = document.getElementById('progress-fill');
